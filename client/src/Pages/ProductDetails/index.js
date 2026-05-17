@@ -26,6 +26,7 @@ const ProductDetails = () => {
   const [productData, setProductData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [relatedProductData, setRelatedProductData] = useState([]);
+  const [aiRecommendedData, setAiRecommendedData] = useState([]);
   let [cartFields, setCartFields] = useState({});
   let [productQuantity, setProductQuantity] = useState();
   const [tabError, setTabError] = useState(false);
@@ -55,13 +56,30 @@ const ProductDetails = () => {
           setRelatedProductData(resRelated?.products?.filter(item => item.id !== id));
         });
 
+        // Fetch AI recommendations
+        fetchDataFromApi(`/api/recommendations/${id}`).then((resAi) => {
+          if (Array.isArray(resAi)) {
+            setAiRecommendedData(resAi);
+          }
+        });
+
         // Manage recently viewed history
         let history = JSON.parse(localStorage.getItem("recentlyViewed")) || [];
-        history = [res, ...history.filter(item => item.id !== res.id && item._id !== res._id)];
-        const limitedHistory = history.slice(0, 5);
+        history = [res, ...history.filter(item => (item.id || item._id) !== (res.id || res._id))];
+        const limitedHistoryIds = history.slice(0, 8).map(item => item.id || item._id);
 
-        localStorage.setItem("recentlyViewed", JSON.stringify(limitedHistory));
-        setRecentlyViewedproducts(limitedHistory);
+        // Fetch latest data for history to ensure products still exist
+        postData(`/api/products/get-multiple`, { ids: limitedHistoryIds }).then((resHistory) => {
+          if (Array.isArray(resHistory)) {
+            // Re-sort resHistory to match the order of limitedHistoryIds
+            const sortedHistory = limitedHistoryIds.map(id =>
+              resHistory.find(item => (item.id || item._id) === id)
+            ).filter(Boolean);
+
+            localStorage.setItem("recentlyViewed", JSON.stringify(sortedHistory));
+            setRecentlyViewedproducts(sortedHistory);
+          }
+        });
       }
     });
 
@@ -501,6 +519,10 @@ const ProductDetails = () => {
           <br />
           {
             relatedProductData?.length !== 0 && <RelatedProducts title="RELATED PRODUCTS" data={relatedProductData} />
+          }
+
+          {
+            aiRecommendedData?.length !== 0 && <RelatedProducts title="YOU MIGHT ALSO LIKE" data={aiRecommendedData} />
           }
 
           {

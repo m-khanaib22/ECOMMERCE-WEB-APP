@@ -7,6 +7,7 @@ import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
+import { AutoFixHigh } from '@mui/icons-material';
 import { useState, useRef } from 'react';
 import Rating from '@mui/material/Rating';
 import { IoMdCloudUpload } from "react-icons/io";
@@ -60,6 +61,7 @@ const EditProduct = () => {
     const [ProductRams, setProductRams] = useState([]);
     const [ProductSize, setProductSize] = useState([]);
     const [ProductWeight, setProductWeight] = useState([]);
+    const [isGenerating, setIsGenerating] = useState(false);
     const history = useNavigate();
     const [formFields, setFormFields] = useState({
         name: "",
@@ -103,14 +105,15 @@ const EditProduct = () => {
                 oldPrice: res.oldPrice,
                 category: res.category?.id,
                 catName: res.catName,
+                subCatId: res.subCat?.id,
                 countInStock: res.countInStock,
                 rating: res.rating,
                 isFeatured: res.isFeatured,
                 images: res.images,
                 discount: res.discount,
-                productRAMS: res.productRAMS?.map(item => item.id),
-                productSIZE: res.productSIZE?.map(item => item.id),
-                productWEIGHT: res.productWEIGHT?.map(item => item.id),
+                productRAMS: res.productRAMS?.filter(item => item != null).map(item => item.id),
+                productSIZE: res.productSIZE?.filter(item => item != null).map(item => item.id),
+                productWEIGHT: res.productWEIGHT?.filter(item => item != null).map(item => item.id),
                 location: res.location
             });
 
@@ -119,10 +122,9 @@ const EditProduct = () => {
             setSubCatVal(res.subCat?.id);
             setIsFeaturedValue(res.isFeatured);
             setPreviews(res.images);
-            setProductRams(res.productRAMS?.map(item => item.id));
-            setProductSize(res.productSIZE?.map(item => item.id));
-            setProductWeight(res.productWEIGHT?.map(item => item.id));
-            context.setselectedCountry(res.location);
+            setProductRams(res.productRAMS?.filter(item => item != null).map(item => item.id));
+            setProductSize(res.productSIZE?.filter(item => item != null).map(item => item.id));
+            setProductWeight(res.productWEIGHT?.filter(item => item != null).map(item => item.id));
             context.setProgress(100);
         });
     }, [id]);
@@ -154,9 +156,12 @@ const EditProduct = () => {
     }
     const handleChangeCategory = (event) => {
         setCategoryVal(event.target.value);
+        const selectedCat = context.catdata?.categoryList?.find(cat => cat.id === event.target.value);
+        
         setFormFields((prev) => ({
             ...prev,
             category: event.target.value,
+            catName: selectedCat ? selectedCat.name : "",
             subCat: "",
             subCatId: ""
         }))
@@ -167,9 +172,9 @@ const EditProduct = () => {
         setSubCatVal(event.target.value);
         setFormFields((prev) => ({
             ...prev,
-            subCat: event.target.value
+            subCat: event.target.value,
+            subCatId: event.target.value
         }))
-        formFields.subCatId = event.target.value;
     };
 
     const handleChangeisFeaturedValue = (event) => {
@@ -302,13 +307,13 @@ const EditProduct = () => {
     }
 
     useEffect(() => {
-        if (context.selectedCountry) {
-            setFormFields((prev) => ({
-                ...prev,
-                location: [context.selectedCountry]
-            }))
+        if (formFields.name && formFields.images.length > 0 && !formFields.description && !isGenerating) {
+            const delayDebounceFn = setTimeout(() => {
+                generateAIByDescription();
+            }, 2000); 
+            return () => clearTimeout(delayDebounceFn);
         }
-    }, [context.selectedCountry])
+    }, [formFields.name, formFields.images]);
 
     const editProduct = (e) => {
         e.preventDefault();
@@ -359,7 +364,7 @@ const EditProduct = () => {
             return false;
         }
 
-        if (formFields.price === null) {
+        if (formFields.price === null || formFields.price === "") {
             context.setAlertBox({
                 open: true,
                 msg: 'please add product price',
@@ -368,7 +373,7 @@ const EditProduct = () => {
             return false;
         }
 
-        if (formFields.oldPrice === null) {
+        if (formFields.oldPrice === null || formFields.oldPrice === "") {
             context.setAlertBox({
                 open: true,
                 msg: 'please add product oldPrice',
@@ -386,7 +391,7 @@ const EditProduct = () => {
             return false;
         }
 
-        if (formFields.countInStock === null) {
+        if (formFields.countInStock === null || formFields.countInStock === "") {
             context.setAlertBox({
                 open: true,
                 msg: 'please add product count in stock',
@@ -408,6 +413,16 @@ const EditProduct = () => {
         setIsLoading(true);
 
         editData(`/api/products/${id}`, formFields).then((res) => {
+            if (res.error || res.success === false) {
+                setIsLoading(false);
+                context.setAlertBox({
+                    open: true,
+                    error: true,
+                    msg: res.message || res.msg || res.error || 'Failed to update product',
+                });
+                return;
+            }
+
             context.setAlertBox({
                 open: true,
                 error: false,
@@ -429,6 +444,48 @@ const EditProduct = () => {
     }
 
 
+
+
+    const generateAIByDescription = () => {
+        if (!formFields.name) {
+            context.setAlertBox({
+                open: true,
+                error: true,
+                msg: "Please enter product name first"
+            });
+            return;
+        }
+
+        setIsGenerating(true);
+        const data = {
+            name: formFields.name,
+            imageUrl: formFields.images.length > 0 ? formFields.images[0] : null
+        }
+
+        postData('/api/ai/generate-description', data).then(res => {
+            setIsGenerating(false);
+            if (res.description) {
+                setFormFields({
+                    ...formFields,
+                    description: res.description
+                });
+                context.setAlertBox({
+                    open: true,
+                    error: false,
+                    msg: "Description generated successfully!"
+                });
+            } else {
+                context.setAlertBox({
+                    open: true,
+                    error: true,
+                    msg: res.message || "Failed to generate description"
+                });
+            }
+        }).catch(err => {
+            setIsGenerating(false);
+            console.log(err);
+        })
+    }
 
 
     return (
@@ -466,7 +523,16 @@ const EditProduct = () => {
                                     <input type='text' name='name' value={formFields.name} onChange={inputChange} />
                                 </div>
                                 <div className="form-group">
-                                    <h6>DESCRIPTION</h6>
+                                    <div className="d-flex align-items-center justify-content-between mb-2">
+                                        <h6 className="mb-0">DESCRIPTION</h6>
+                                        <Button 
+                                            className="btn-blue btn-sm btn-round" 
+                                            onClick={generateAIByDescription}
+                                            disabled={isGenerating}
+                                        >
+                                            {isGenerating ? <CircularProgress size={20} color="inherit" /> : <><AutoFixHigh fontSize="small" /> &nbsp; Generate with AI</>}
+                                        </Button>
+                                    </div>
                                     <textarea rows={5} cols={10} value={formFields.description} name='description' onChange={inputChange} />
                                 </div>
 
@@ -486,7 +552,7 @@ const EditProduct = () => {
                                                 {
                                                     context.catdata?.categoryList?.length !== 0 && context.catdata?.categoryList?.map((cat, index) => {
                                                         return (
-                                                            <MenuItem className='text-capitalize' value={cat.id} key={index} onClick={() => selectCat(cat.name)} >{cat.name}</MenuItem>
+                                                            <MenuItem className='text-capitalize' value={cat.id} key={index}>{cat.name}</MenuItem>
                                                         )
                                                     })
                                                 }

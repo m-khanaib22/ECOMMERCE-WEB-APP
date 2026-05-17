@@ -18,6 +18,8 @@ const Listing = () => {
     const [anchorEl, setAnchorEl] = useState(null);
     const [productView, setproductView] = useState('four');
     const [productData, setProductData] = useState([]);
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
     const openDropdown = Boolean(anchorEl);
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
@@ -37,10 +39,13 @@ const Listing = () => {
     let apiEndPoint="";
 
     if (url.includes('category')){
-        apiEndPoint=`/api/products?category=${id}&location=${context.selectedCountry}`
+        apiEndPoint=`/api/products?category=${id}&location=${context.selectedCountry}&page=${page}&perPage=12`
     }
-    if (url.includes('subCat')){
-        apiEndPoint=`/api/products?subCatId=${id}&location=${context.selectedCountry}`
+    else if (url.includes('subCat')){
+        apiEndPoint=`/api/products?subCatId=${id}&location=${context.selectedCountry}&page=${page}&perPage=12`
+    }
+    else if (url.includes('products')){
+        apiEndPoint=`/api/products?location=${context.selectedCountry}&page=${page}&perPage=12`
     }
 
     console.log(window.location.href)
@@ -49,24 +54,37 @@ const Listing = () => {
         fetchDataFromApi(`${apiEndPoint}`).then((res) => {
             console.log(res.products);
             setProductData(res.products);
+            if (res.totalPages) {
+                setTotalPages(res.totalPages);
+            }
         })
-    }, [id, context.selectedCountry]);
+    }, [id, context.selectedCountry, page]);
+
+    const handlePageChange = (event, value) => {
+        setPage(value);
+    };
 
     const filterData = (subCatId) => {
-        fetchDataFromApi(`/api/products?subCatId=${subCatId}`).then((res) => {
+        setPage(1);
+        fetchDataFromApi(`/api/products?subCatId=${subCatId}&page=1&perPage=12`).then((res) => {
             setProductData(res.products);
+            if (res.totalPages) setTotalPages(res.totalPages);
         })
     }
 
     const filterByPrice = (price, subCatId) => {
-        fetchDataFromApi(`/api/products?minPrice=${price[0]}&maxPrice=${price[1]}&subCatId=${subCatId}`).then((res) => {
+        setPage(1);
+        fetchDataFromApi(`/api/products?minPrice=${price[0]}&maxPrice=${price[1]}&subCatId=${subCatId}&page=1&perPage=12`).then((res) => {
             setProductData(res.products)
+            if (res.totalPages) setTotalPages(res.totalPages);
         })
     }
 
     const filterByRating = (rating, subCatId) => {
-        fetchDataFromApi(`/api/products?rating=${rating}&subCatId=${subCatId}`).then((res) => {
+        setPage(1);
+        fetchDataFromApi(`/api/products?rating=${rating}&subCatId=${subCatId}&page=1&perPage=12`).then((res) => {
             setProductData(res.products)
+            if (res.totalPages) setTotalPages(res.totalPages);
         })
     }
 
@@ -127,7 +145,7 @@ const Listing = () => {
                             </div>
 
                             <div className="d-flex align-items-center justify-content-center mt-5">
-                                <Pagination count={10} color="primary" size="large" />
+                                <Pagination count={totalPages} page={page} onChange={handlePageChange} color="primary" size="large" />
                             </div>
 
                         </div>

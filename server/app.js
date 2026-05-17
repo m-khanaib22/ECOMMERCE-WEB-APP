@@ -33,6 +33,8 @@ const productReviewsRoutes = require('./routes/productReviews.js')
 const myListSchema = require('./routes/myList.js')
 const ordersRoutes = require('./routes/orders.js')
 const homeBannerSchema = require('./routes/homeBanner.js')
+const recommendationsRoutes = require('./routes/recommendations.js')
+const aiRoutes = require('./routes/ai.js')
 
 
 app.use("/api/user", userRoutes);
@@ -48,6 +50,8 @@ app.use(`/api/myList`, myListSchema);
 app.use(`/api/productReviews`, productReviewsRoutes);
 app.use(`/api/orders`, ordersRoutes);
 app.use(`/api/homeBanner`, homeBannerSchema);
+app.use(`/api/recommendations`, recommendationsRoutes);
+app.use(`/api/ai`, aiRoutes);
 
 //Database
 mongoose.connect(process.env.CONNECTION_STRING, {

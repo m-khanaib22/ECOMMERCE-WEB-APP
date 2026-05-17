@@ -16,11 +16,13 @@ function authJwt() {
             { url: /\/api\/user\/reset-password/, methods: ['POST', 'OPTIONS'] },
             { url: /\/api\/user\/google-signin/, methods: ['POST', 'OPTIONS'] },
             { url: /\/api\/category(.*)/, methods: ['GET', 'OPTIONS'] },
+            { url: /\/api\/products\/get-multiple/, methods: ['POST', 'OPTIONS'] },
             { url: /\/api\/products(.*)/, methods: ['GET', 'OPTIONS'] },
             { url: /\/api\/subCat(.*)/, methods: ['GET', 'OPTIONS'] },
             { url: /\/api\/productReviews(.*)/, methods: ['GET', 'OPTIONS'] },
             { url: /\/api\/homeBanner(.*)/, methods: ['GET', 'OPTIONS'] },
             { url: /\/uploads(.*)/, methods: ['GET', 'OPTIONS'] },
+            { url: /\/api\/ai(.*)/, methods: ['POST', 'OPTIONS'] },
         ]
     })
 }

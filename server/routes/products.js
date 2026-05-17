@@ -53,12 +53,6 @@ router.get('/', async (req, res) => {
 
     const page = parseInt(req.query.page) || 1;
     const perPage = parseInt(req.query.perPage) || 8;
-    const totalPosts = await Product.countDocuments();
-    const totalPages = Math.ceil(totalPosts / perPage) || 1;
-
-    if (page > totalPages) {
-        return res.status(404).json({ message: "Page not found" })
-    }
 
     const query = { ...req.query };
 
@@ -93,7 +87,17 @@ router.get('/', async (req, res) => {
     }
 
     try {
-        const productList = await Product.find(query).populate("category subCat");
+        const totalPosts = await Product.countDocuments(query);
+        const totalPages = Math.ceil(totalPosts / perPage) || 1;
+
+        if (totalPosts > 0 && page > totalPages) {
+            return res.status(404).json({ message: "Page not found" })
+        }
+
+        const productList = await Product.find(query)
+            .populate("category subCat")
+            .skip((page - 1) * perPage)
+            .limit(perPage);
 
         if (!productList) {
             return res.status(500).json({ success: false });
@@ -260,6 +264,20 @@ router.get('/:id', async (req, res) => {
         });
     }
 })
+
+router.post('/get-multiple', async (req, res) => {
+    try {
+        const { ids } = req.body;
+        if (!ids || !Array.isArray(ids)) {
+            return res.status(400).json({ message: "Invalid IDs provided" });
+        }
+
+        const products = await Product.find({ _id: { $in: ids } }).populate("category subCat");
+        res.status(200).json(products);
+    } catch (error) {
+        res.status(500).json({ message: error.message, success: false });
+    }
+});
 
 // // ================= DELETE PRODUCT =================
 router.delete('/delete-image', async (req, res) => {

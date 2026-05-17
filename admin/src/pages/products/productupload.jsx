@@ -19,6 +19,7 @@ import { IoMdClose } from "react-icons/io";
 import { deleteImages, fetchDataFromApi, postData } from '../../utils/api';
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
+import { AutoFixHigh } from '@mui/icons-material';
 
 const StyledBreadcrumb = styled(Chip)(({ theme }) => {
     const backgroundColor = theme.palette.mode === 'light'
@@ -56,6 +57,7 @@ const ProductUpload = () => {
 
     const [isLoading, setIsLoading] = useState(false);
     const [uploading, setUploading] = useState(false);
+    const [isGenerating, setIsGenerating] = useState(false);
 
     const [catdata, setCatData] = useState([]);
     const [categoryVal, setCategoryVal] = useState('');
@@ -200,6 +202,15 @@ const ProductUpload = () => {
         }
     }, [context.selectedCountry])
 
+    useEffect(() => {
+        if (formFields.name && formFields.images.length > 0 && !formFields.description && !isGenerating) {
+            const delayDebounceFn = setTimeout(() => {
+                generateAIByDescription();
+            }, 2000); // Wait 2 seconds after name/image are ready
+            return () => clearTimeout(delayDebounceFn);
+        }
+    }, [formFields.name, formFields.images]);
+
     const inputChange = (e) => {
         setFormFields(() => ({
             ...formFields,
@@ -326,6 +337,47 @@ const ProductUpload = () => {
         });
     }
 
+    const generateAIByDescription = () => {
+        if (!formFields.name) {
+            context.setAlertBox({
+                open: true,
+                error: true,
+                msg: "Please enter product name first"
+            });
+            return;
+        }
+
+        setIsGenerating(true);
+        const data = {
+            name: formFields.name,
+            imageUrl: formFields.images.length > 0 ? formFields.images[0] : null
+        }
+
+        postData('/api/ai/generate-description', data).then(res => {
+            setIsGenerating(false);
+            if (res.description) {
+                setFormFields({
+                    ...formFields,
+                    description: res.description
+                });
+                context.setAlertBox({
+                    open: true,
+                    error: false,
+                    msg: "Description generated successfully!"
+                });
+            } else {
+                context.setAlertBox({
+                    open: true,
+                    error: true,
+                    msg: res.message || "Failed to generate description"
+                });
+            }
+        }).catch(err => {
+            setIsGenerating(false);
+            console.log(err);
+        })
+    }
+
 
     return (
         <>
@@ -362,7 +414,16 @@ const ProductUpload = () => {
                                     <input type='text' name='name' value={formFields.name} onChange={inputChange} />
                                 </div>
                                 <div className="form-group">
-                                    <h6>DESCRIPTION</h6>
+                                    <div className="d-flex align-items-center justify-content-between mb-2">
+                                        <h6 className="mb-0">DESCRIPTION</h6>
+                                        <Button 
+                                            className="btn-blue btn-sm btn-round" 
+                                            onClick={generateAIByDescription}
+                                            disabled={isGenerating}
+                                        >
+                                            {isGenerating ? <CircularProgress size={20} color="inherit" /> : <><AutoFixHigh fontSize="small" /> &nbsp; Generate with AI</>}
+                                        </Button>
+                                    </div>
                                     <textarea rows={5} cols={10} value={formFields.description} name='description' onChange={inputChange} />
                                 </div>
 

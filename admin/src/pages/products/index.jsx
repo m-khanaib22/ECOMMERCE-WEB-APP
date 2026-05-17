@@ -176,9 +176,6 @@ const Products = () => {
                                     <th>BRAND</th>
                                     <th>PRICE</th>
                                     <th>RATING</th>
-                                    <th>PRODUCT RAMS</th>
-                                    <th>PRODUCT SIZE</th>
-                                    <th>PRODUCT WEIGHT</th>
                                     <th>ACTION</th>
                                 </tr>
                             </thead>
@@ -209,21 +206,6 @@ const Products = () => {
                                                     </div>
                                                 </td>
                                                 <td><Rating name="read-only" defaultValue={item?.rating} precision={0.5} size="small" readOnly /></td>
-                                                <td>
-                                                    {item?.productRAMS.map((ram) => {
-                                                        return (<span className="badge badge-primary mr-2">{ram.productRAM}</span>)
-                                                    })}
-                                                </td>
-                                                <td>
-                                                    {item?.productSIZE.map((size) => {
-                                                        return (<span className="badge badge-primary mr-2">{size.productSIZE}</span>)
-                                                    })}
-                                                </td>
-                                                <td>
-                                                    {item?.productWEIGHT.map((weight) => {
-                                                        return (<span className="badge badge-primary mr-2">{weight.productWEIGHT}</span>)
-                                                    })}
-                                                </td>
                                                 <td><div className="actions d-flex align-items-center">
                                                     <Link to={`/productdetails/${item.id}`}><Button className="secondary" color="secondary"><FaEye /></Button></Link>
                                                     <Link to={`/product/edit/${item.id}`}><Button className="success" color="success"><FaPencilAlt /></Button></Link>

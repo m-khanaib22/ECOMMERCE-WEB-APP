@@ -301,6 +301,7 @@ function App() {
           <Route path="/" exact={true} element={<Home />} />
           <Route path="/category/:id" exact={true} element={<Listing />} />
           <Route path="/subCat/:id" exact={true} element={<Listing />} />
+          <Route path="/products" exact={true} element={<Listing />} />
           <Route exact={true} path="/product/:id" element={<ProductDetails />} />
           <Route exact={true} path="/cart" element={<Cart />} />
           <Route exact={true} path="/myList" element={<MyList />} />
