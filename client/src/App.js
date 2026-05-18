@@ -97,13 +97,21 @@ function App() {
 
   const getCartData = () => {
     fetchDataFromApi(`/api/cart?userId=${user.userId}`).then((res) => {
-      setCartData(res);
+      if (res && Array.isArray(res)) {
+        setCartData(res);
+      } else {
+        setCartData([]);
+      }
     });
   }
 
   const getMyListData = () => {
     fetchDataFromApi(`/api/myList?userId=${user.userId}`).then((res) => {
-      setmyListData(res);
+      if (res && Array.isArray(res)) {
+        setmyListData(res);
+      } else {
+        setmyListData([]);
+      }
     });
   }
 

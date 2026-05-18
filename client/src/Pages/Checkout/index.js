@@ -84,8 +84,8 @@ const CheckoutForm = () => {
 
     setIsProcessing(true);
 
-    const totalAmount = cartData?.length !== 0 ?
-      cartData?.map(item => parseInt(item.price) * item.quantity).reduce((total, value) => total + value, 0) : 0;
+    const totalAmount = (Array.isArray(cartData) && cartData.length > 0) ?
+      cartData.map(item => parseInt(item.price) * item.quantity).reduce((total, value) => total + value, 0) : 0;
 
     try {
       // 1. Create Payment Intent
@@ -251,7 +251,7 @@ const CheckoutForm = () => {
                     </thead>
                     <tbody >
                       {
-                        cartData?.length !== 0 && cartData?.map((item, index) => {
+                        (Array.isArray(cartData) && cartData.length > 0) && cartData.map((item, index) => {
                           return (
                             <tr key={index}>
                               <td>{item?.productTitle?.substr(0, 20) + '...'}<b>x {item?.quantity}</b> </td>
@@ -267,8 +267,8 @@ const CheckoutForm = () => {
                         <td>SubTotal</td>
 
                         <td>Rs {
-                          cartData?.length !== 0 ?
-                            cartData?.map(item => parseInt(item.price) * item.quantity).reduce((total, value) => total + value, 0) : 0
+                          (Array.isArray(cartData) && cartData.length > 0) ?
+                            cartData.map(item => parseInt(item.price) * item.quantity).reduce((total, value) => total + value, 0) : 0
                         }</td>
                       </tr>
                     </tbody>

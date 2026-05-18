@@ -47,10 +47,10 @@ const Cart = () => {
             <section className="section cartPage">
                 <div className="container">
                     <h2 className="hd mb-1">Your Cart</h2>
-                    <p>There are <b className="text-red">{cartData?.length}</b> products in your cart</p>
+                    <p>There are <b className="text-red">{Array.isArray(cartData) ? cartData.length : 0}</b> products in your cart</p>
 
                     {
-                        cartData?.length !== 0 ?
+                        (Array.isArray(cartData) && cartData.length > 0) ?
                             <div className="row">
                                 <div className="col-md-9 pr-5">
 
@@ -67,7 +67,7 @@ const Cart = () => {
                                             </thead>
                                             <tbody>
                                                 {
-                                                    cartData?.length !== 0 && cartData?.map((item, index) => {
+                                                    (Array.isArray(cartData) && cartData.length > 0) && cartData.map((item, index) => {
                                                         return (
                                                             <tr key={index}>
                                                                 <td width="35%">
@@ -110,8 +110,8 @@ const Cart = () => {
                                             <span>Subtotal</span>
                                             <span className="ml-auto text-red font-weight-bold">
                                                 Rs {
-                                                    cartData?.length !== 0 ?
-                                                        cartData?.map(item => parseInt(item.price) * item.quantity).reduce((total, value) => total + value, 0) : 0
+                                                    (Array.isArray(cartData) && cartData.length > 0) ?
+                                                        cartData.map(item => parseInt(item.price) * item.quantity).reduce((total, value) => total + value, 0) : 0
                                                 }
                                             </span>
                                         </div>
@@ -130,8 +130,8 @@ const Cart = () => {
                                             <span>Total</span>
                                             <span className="ml-auto text-red font-weight-bold">
                                                 Rs {
-                                                    cartData?.length !== 0 ?
-                                                        cartData?.map(item => parseInt(item.price) * item.quantity).reduce((total, value) => total + value, 0) : 0
+                                                    (Array.isArray(cartData) && cartData.length > 0) ?
+                                                        cartData.map(item => parseInt(item.price) * item.quantity).reduce((total, value) => total + value, 0) : 0
                                                 }
                                             </span>
                                         </div>

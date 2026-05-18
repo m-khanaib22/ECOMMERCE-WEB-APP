@@ -26,7 +26,11 @@ const MyList = () => {
         }
         const user = JSON.parse(localStorage.getItem("user"));
         fetchDataFromApi(`/api/myList?userId=${user.userId}`).then((res) => {
-            context.setmyListData(res);
+            if (res && Array.isArray(res)) {
+                context.setmyListData(res);
+            } else {
+                context.setmyListData([]);
+            }
         })
     }, []);
 
@@ -42,10 +46,10 @@ const MyList = () => {
 
                     <div className="myListTableWrapper">
                         <h2 className="hd mb-1">My List</h2>
-                        <p>There are <b className="text-red">{context.myListData?.length}</b> products in my list</p>
+                        <p>There are <b className="text-red">{Array.isArray(context.myListData) ? context.myListData.length : 0}</b> products in my list</p>
 
                         {
-                            context.myListData?.length !== 0 ?
+                            (Array.isArray(context.myListData) && context.myListData.length > 0) ?
                                 <div className="row">
                                     <div className="col-md-12 pr-5">
 
@@ -60,7 +64,7 @@ const MyList = () => {
                                                 </thead>
                                                 <tbody>
                                                     {
-                                                        context.myListData?.length !== 0 && context.myListData?.map((item, index) => {
+                                                        (Array.isArray(context.myListData) && context.myListData.length > 0) && context.myListData.map((item, index) => {
                                                             return (
                                                                 <tr key={index}>
                                                                     <td width="50%">

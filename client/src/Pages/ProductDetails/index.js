@@ -262,7 +262,7 @@ const ProductDetails = () => {
                     {
                       productData?.productRAMS?.map((item, index) => {
                         return (
-                          <li className='list-inline-item'><a className={`tag ${activeSize === index ? 'active' : ''}`} onClick={() => isActive(index)}>{item?.productRAM}</a></li>
+                          <li className='list-inline-item'><a href="" className={`tag ${activeSize === index ? 'active' : ''}`} onClick={() => isActive(index)}>{item?.productRAM}</a></li>
                         )
                       })
                     }
@@ -278,7 +278,7 @@ const ProductDetails = () => {
                     {
                       productData?.productSIZE?.map((item, index) => {
                         return (
-                          <li className='list-inline-item'><a className={`tag ${activeSize === index ? 'active' : ''}`} onClick={() => isActive(index)}>{item?.productSIZE}</a></li>
+                          <li className='list-inline-item'><a href="" className={`tag ${activeSize === index ? 'active' : ''}`} onClick={() => isActive(index)}>{item?.productSIZE}</a></li>
                         )
                       })
                     }
@@ -294,7 +294,7 @@ const ProductDetails = () => {
                     {
                       productData?.productWEIGHT?.map((item, index) => {
                         return (
-                          <li className='list-inline-item'><a className={`tag ${activeSize === index ? 'active' : ''}`} onClick={() => isActive(index)}>{item.productWEIGHT}</a></li>
+                          <li className='list-inline-item'><a href="" className={`tag ${activeSize === index ? 'active' : ''}`} onClick={() => isActive(index)}>{item.productWEIGHT}</a></li>
                         )
                       })
                     }

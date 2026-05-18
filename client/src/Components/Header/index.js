@@ -113,8 +113,8 @@ const Header = () => {
 
                   <div className="ml-auto cartTab d-flex align-items-center">
                     <span className="price">Rs. {
-                      context.cartData?.length !== 0 ?
-                        context.cartData?.map(item => parseInt(item.price) * item.quantity).reduce((total, value) => total + value, 0) : 0
+                      (Array.isArray(context.cartData) && context.cartData.length > 0) ?
+                        context.cartData.map(item => parseInt(item.price) * item.quantity).reduce((total, value) => total + value, 0) : 0
                     }</span>
                     <div className="position-relative ml-2">
                       <Link to={"/cart"}>
@@ -122,7 +122,7 @@ const Header = () => {
                           <TiShoppingCart />
                         </Button></Link>
                       <span className="count d-flex align-items-center justify-content-center">
-                        {context.cartData.length}
+                        {Array.isArray(context.cartData) ? context.cartData.length : 0}
                       </span>
                     </div>
                   </div>
