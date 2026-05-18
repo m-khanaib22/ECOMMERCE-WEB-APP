@@ -58,7 +58,7 @@ function App() {
   const [recentOrders, setRecentOrders] = useState([]);
 
 
-  const [baseURL, setBaseURL] = useState("http://localhost:4000");
+  const [baseURL, setBaseURL] = useState("https://ecommerce-web-app-production-11c1.up.railway.app");
   const [progress, setProgress] = useState(0);
   const [alertBox, setAlertBox] = useState({
     msg: '',

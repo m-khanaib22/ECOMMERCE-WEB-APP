@@ -115,20 +115,20 @@ function App() {
   }
 
   const fetchCategory = () => {
-    axios.get("http://localhost:4000/api/category").then((res) => {
+    axios.get("https://ecommerce-web-app-production-11c1.up.railway.app/api/category").then((res) => {
       setCategoryData(res.data);
       setActiveCat(res.data.categoryList[0].name)
     })
   }
 
   const fetchSubCategory = () => {
-    axios.get("http://localhost:4000/api/subCat").then((res) => {
+    axios.get("https://ecommerce-web-app-production-11c1.up.railway.app/api/subCat").then((res) => {
       setSubCategoryData(res.data);
     })
   }
 
   const fetchProducts = (location) => {
-    let url = "http://localhost:4000/api/products?perPage=8";
+    let url = "https://ecommerce-web-app-production-11c1.up.railway.app/api/products?perPage=8";
     if (location && location !== "All") {
       url += `&location=${location}`;
     }
@@ -138,9 +138,9 @@ function App() {
   }
 
   const fetchFeaturedProducts = (location) => {
-    let url = "http://localhost:4000/api/products/featured";
+    let url = "https://ecommerce-web-app-production-11c1.up.railway.app/api/products/featured";
     if (location && location !== "All") {
-      url = `http://localhost:4000/api/products?isFeatured=true&location=${location}`;
+      url = `https://ecommerce-web-app-production-11c1.up.railway.app/api/products?isFeatured=true&location=${location}`;
     }
     axios.get(url).then((res) => {
       setFeaturedProducts(res.data.products ? res.data.products : res.data);
@@ -258,7 +258,7 @@ function App() {
     setSubCategoryData,
     isOpenProductModal,
     setisOpenProductModal,
-    baseURL: "http://localhost:4000",
+    baseURL: "https://ecommerce-web-app-production-11c1.up.railway.app",
     alertBox,
     setAlertBox,
     addingInCart,
